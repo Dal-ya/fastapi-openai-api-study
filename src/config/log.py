@@ -6,32 +6,25 @@ from typing import Union
 import yaml
 from pathlib import Path
 
+CONFIG_PATH = Path.cwd() / 'src' / 'config' / 'log.yml'
 
-DEFAULT_CONFIG = Path("log.yml")  # path/filename
-
-DIR = os.path.dirname(os.path.abspath(__file__))
-joinDIR = os.path.join(DIR, "/log.yml")
-print('a: ', os.path.dirname(os.path.abspath(__file__)))
-print('join dir: ', joinDIR)
-print('+ ', DIR + '\log.yml')
 
 class Config:
-    def __init__(self, config_file=DEFAULT_CONFIG):
+    def __init__(self, config_file=CONFIG_PATH):
         self.config = self._read_config(config_file)
 
     # noinspection PyMethodMayBeStatic
     def _read_config(self, config_file: Path) -> Union[None, dict]:
         try:
-            with open(DIR + '/log.yml', "r", encoding="utf-8") as file:
+            with open(config_file, "r", encoding="utf-8") as file:
                 config = yaml.safe_load(file)
-            print('file: ', config)
             return config
 
         except FileNotFoundError as err:
             print('FileNotFoundError: ', err)
             return {}
 
-    def get_config_value(self, section: str, key: str,  default_value=None) -> str:
+    def get_config_value(self, section: str, key: str, default_value=None) -> str:
         """get a value in a section"""
         return self.config.get(section, {}).get(key, default_value)
 

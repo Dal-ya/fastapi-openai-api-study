@@ -5,8 +5,6 @@ import src.config.log as app_log
 
 # setup log
 logger = app_log.get_logger(__name__)
-print('logger: ', logger)
-print('name: ', __name__)
 
 app = FastAPI()
 
@@ -18,7 +16,7 @@ async def start_database():
 
 @app.get("/")
 def read_root():
-    logger.error("test logger!")
+    logger.info("test logger!")
     return {"Hello": "World"}
 
 
