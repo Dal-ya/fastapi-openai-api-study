@@ -1,0 +1,7 @@
+logging:
+  path: ./src/logs/                # 로그파일 저장 경로
+  filename: app                # 로그파일 이름 (확장자 제외. 날짜가 자동으로 추가됩니다.)
+  level: debug                 # 로깅 전략: debug, info, warning, error, critical 중 하나를 선택
+  to_console: True             # 콘솔에 로그 출력 여부
+  to_file: True                # 파일로 로그 출력 여부
+  create_folder: True          # 로그 폴더가 없으면 생성할지 여부
