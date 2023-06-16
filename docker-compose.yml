@@ -31,4 +31,4 @@ services:
 # 이슈 확인 (https://github.com/prisma/prisma/issues/8266)
 
 # 컴파스 등 몽고 디비 접속 방법
-#   mongodb://root:coco123!@127.0.0.1:27017/coco?authSource=admin&directConnection=true
+#   mongodb://root:coco123!@127.0.0.1:37017/gpt?authSource=admin&directConnection=true

@@ -2,6 +2,9 @@ from typing import List
 from fastapi import APIRouter
 from src.dto.dto import CreateUserDto, ApiResponse
 from src.models.user import User
+import src.config.log as app_log
+
+logger = app_log.get_logger("user_router")
 
 router = APIRouter()
 
@@ -13,6 +16,7 @@ async def get_user_list():
         return {"success": True, "message": "success get user list", "data": user_list}
     except Exception as e:
         print(e)
+        logger.error(e)
         return {"success": False, "message": "failed get user list", "data": None}
 
 
@@ -23,4 +27,5 @@ async def create_user(user_create: CreateUserDto):
         return {"success": True, "message": "success get user", "data": user}
     except Exception as e:
         print(e)
+        logger.error(e)
         return {"success": False, "message": "failed get user", "data": None}

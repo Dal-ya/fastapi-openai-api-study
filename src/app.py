@@ -5,7 +5,7 @@ import src.config.log as app_log
 
 
 # setup log
-logger = app_log.get_logger(__name__)
+logger = app_log.get_logger("app_main")
 
 # setup app
 app = FastAPI()
