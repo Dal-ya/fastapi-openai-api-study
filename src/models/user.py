@@ -1,7 +1,6 @@
-from beanie import Document, PydanticObjectId
+from beanie import Document
 from fastapi.security import HTTPBasicCredentials
 from pydantic import BaseModel, EmailStr, Field
-from bson.objectid import ObjectId
 
 
 class User(Document):
@@ -43,3 +42,4 @@ class UserData(BaseModel):
                 "email": "sherlock@test.com",
             }
         }
+

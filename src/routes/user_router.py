@@ -24,4 +24,3 @@ async def create_user(user_create: CreateUserDto):
     except Exception as e:
         print(e)
         return {"success": False, "message": "failed get user", "data": None}
-
