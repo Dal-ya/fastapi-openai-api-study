@@ -15,3 +15,9 @@ class CreateUserDto(BaseModel):
     email: str
     password: str
     secret: str  # 생성시 필요한 비밀키
+
+
+class UserSignInDto(BaseModel):
+    email: str
+    password: str
+

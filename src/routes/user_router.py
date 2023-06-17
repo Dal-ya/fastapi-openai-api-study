@@ -1,7 +1,8 @@
 import os
 from typing import List
 from fastapi import APIRouter
-from src.dto.dto import CreateUserDto, ApiResponse
+from src.dto.dto import CreateUserDto, ApiResponse, UserSignInDto
+from src.jwt.handler import sign_jwt
 from src.models.user import User
 import src.config.log as app_log
 from dotenv import load_dotenv
@@ -39,6 +40,23 @@ async def create_user(user_create: CreateUserDto):
         filtered_user = {key: value for key, value in user.dict().items() if key != "password"}
 
         return {"success": True, "message": "success get user", "data": filtered_user}
+    except Exception as e:
+        print(e)
+        logger.error(e)
+        return {"success": False, "message": "failed get user", "data": None}
+
+
+@router.post("/sign-in", status_code=200, response_model=ApiResponse[User])
+async def sign_in(user_sign_in: UserSignInDto):
+    try:
+        user = await User.find_one(User.email == user_sign_in.email)
+        if user is None:
+            return {"success": False, "message": "user is not exist", "data": None}
+
+        if not crypto.verify(user_sign_in.password, user.password):
+            return {"success": False, "message": "email or password is not valid", "data": None}
+
+        return {"success": True, "message": "success signin user", "data": sign_jwt(user.email)}
     except Exception as e:
         print(e)
         logger.error(e)
