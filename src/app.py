@@ -18,7 +18,6 @@ async def start_database():
 
 @app.get("/")
 def read_root():
-    logger.info("test logger!")
     return {"Hello": "World"}
 
 

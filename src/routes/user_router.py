@@ -1,10 +1,15 @@
+import os
 from typing import List
 from fastapi import APIRouter
 from src.dto.dto import CreateUserDto, ApiResponse
 from src.models.user import User
 import src.config.log as app_log
+from dotenv import load_dotenv
+from passlib.context import CryptContext
 
+load_dotenv()
 logger = app_log.get_logger("user_router")
+crypto = CryptContext(schemes=["bcrypt"])
 
 router = APIRouter()
 
@@ -20,11 +25,20 @@ async def get_user_list():
         return {"success": False, "message": "failed get user list", "data": None}
 
 
-@router.post("/", status_code=201, response_model=ApiResponse[User])
+@router.post("/", status_code=200, response_model=ApiResponse[User])
 async def create_user(user_create: CreateUserDto):
     try:
+        if user_create.secret != os.environ["CREATE_USER_KEY"]:
+            return {"success": False, "message": "secret key is not valid", "data": None}
+
+        if await User.find_one(User.email == user_create.email):
+            return {"success": False, "message": "email is already exist", "data": None}
+
+        user_create.password = crypto.hash(user_create.password)
         user = await User(**user_create.dict()).insert()
-        return {"success": True, "message": "success get user", "data": user}
+        filtered_user = {key: value for key, value in user.dict().items() if key != "password"}
+
+        return {"success": True, "message": "success get user", "data": filtered_user}
     except Exception as e:
         print(e)
         logger.error(e)

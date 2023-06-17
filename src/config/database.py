@@ -2,6 +2,9 @@ import os
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from src.models.user import User
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def initiate_database():

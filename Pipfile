@@ -11,6 +11,8 @@ beanie = "*"
 python-dotenv = "*"
 pyyaml = "*"
 pydantic = {extras = ["email"], version = "*"}
+passlib = "*"
+bcrypt = "*"
 
 [dev-packages]
 
