@@ -13,6 +13,7 @@ pyyaml = "*"
 pydantic = {extras = ["email"], version = "*"}
 passlib = "*"
 bcrypt = "*"
+pyjwt = "*"
 
 [dev-packages]
 
