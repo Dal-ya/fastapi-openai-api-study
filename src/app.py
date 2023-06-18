@@ -3,12 +3,26 @@ from src.routes.user_router import router as user_router
 from src.config.database import initiate_database
 import src.config.log as app_log
 from src.jwt.bearer import JWTBearer
+from fastapi.middleware.cors import CORSMiddleware
 
 # setup log
 logger = app_log.get_logger("app_main")
 
 # setup app
 app = FastAPI()
+
+# cors
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # jwt bearer
 jwt_bearer = JWTBearer()
