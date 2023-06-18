@@ -50,8 +50,13 @@ def get_file_handler(log_file: str):
 
 
 def get_log_path_file(cfg: Config) -> tuple:
+    basic_path = cfg.get_config_value("logging", "path")
+    year = datetime.datetime.now().strftime("%Y")
+    month = datetime.datetime.now().strftime("%m")
+    log_path = os.path.join(basic_path, year, month)
+
     return (
-        cfg.get_config_value("logging", "path"),
+        log_path,
         cfg.get_config_value("logging", "filename"),
     )
 
@@ -96,7 +101,7 @@ def get_logger(name: str) -> logging.Logger:
                 print("Logging folder not found. Exiting...")
                 exit(-1)
 
-        log_file = os.path.join(log_path, f"{log_filename}.{datetime.date.today()}")
+        log_file = os.path.join(log_path, f"{log_filename}.{datetime.date.today()}.log")
         logger.addHandler(get_file_handler(log_file))
 
     return logger
