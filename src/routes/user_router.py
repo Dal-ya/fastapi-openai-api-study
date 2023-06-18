@@ -1,12 +1,13 @@
 import os
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from src.dto.dto import CreateUserDto, ApiResponse, UserSignInDto
 from src.jwt.handler import sign_jwt
 from src.models.user import User
 import src.config.log as app_log
 from dotenv import load_dotenv
 from passlib.context import CryptContext
+from src.jwt.bearer import JWTBearer
 
 load_dotenv()
 logger = app_log.get_logger("user_router")
@@ -14,8 +15,11 @@ crypto = CryptContext(schemes=["bcrypt"])
 
 router = APIRouter()
 
+# jwt bearer
+jwt_bearer = JWTBearer()
 
-@router.get("/", status_code=200, response_model=ApiResponse[List[User]])
+
+@router.get("/", status_code=200, response_model=ApiResponse[List[User]], dependencies=[Depends(jwt_bearer)])
 async def get_user_list():
     try:
         user_list = await User.find_all().to_list()

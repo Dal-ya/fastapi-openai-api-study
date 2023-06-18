@@ -1,14 +1,17 @@
-from fastapi import FastAPI, Response, Request
+from fastapi import FastAPI, Depends
 from src.routes.user_router import router as user_router
 from src.config.database import initiate_database
 import src.config.log as app_log
-
+from src.jwt.bearer import JWTBearer
 
 # setup log
 logger = app_log.get_logger("app_main")
 
 # setup app
 app = FastAPI()
+
+# jwt bearer
+jwt_bearer = JWTBearer()
 
 
 @app.on_event("startup")
