@@ -21,3 +21,16 @@ class UserSignInDto(BaseModel):
     email: str
     password: str
 
+
+class CreateFineTuneNameDTO(BaseModel):
+    name: str
+
+
+class RequestChatByFineTuneDTO(BaseModel):
+    fineTuneModel: str
+    prompt: str
+
+
+class CreatePaintDTO(BaseModel):
+    author: str
+    description: str

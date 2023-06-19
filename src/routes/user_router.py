@@ -21,6 +21,9 @@ jwt_bearer = JWTBearer()
 
 @router.get("/", status_code=200, response_model=ApiResponse[List[User]], dependencies=[Depends(jwt_bearer)])
 async def get_user_list():
+    """
+    유저 목록 가져오기 
+    """
     try:
         user_list = await User.find_all().to_list()
         return {"success": True, "message": "success get user list", "data": user_list}
@@ -32,6 +35,9 @@ async def get_user_list():
 
 @router.post("/", status_code=200, response_model=ApiResponse[User])
 async def create_user(user_create: CreateUserDto):
+    """
+    유저 생성하기
+    """
     try:
         if user_create.secret != os.environ["CREATE_USER_KEY"]:
             return {"success": False, "message": "secret key is not valid", "data": None}
@@ -52,6 +58,9 @@ async def create_user(user_create: CreateUserDto):
 
 @router.post("/sign-in", status_code=200, response_model=ApiResponse[User])
 async def sign_in(user_sign_in: UserSignInDto):
+    """
+    유저 로그인
+    """
     try:
         user = await User.find_one(User.email == user_sign_in.email)
         if user is None:

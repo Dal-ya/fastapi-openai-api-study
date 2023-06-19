@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends
 from src.routes.user_router import router as user_router
+from src.routes.openai_router import router as openai_router
 from src.config.database import initiate_database
 import src.config.log as app_log
 from src.jwt.bearer import JWTBearer
@@ -35,10 +36,11 @@ async def start_database():
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"Hello": "Welcome Chat Api"}
 
 
 app.include_router(user_router, tags=["user"], prefix="/api/user")
+app.include_router(openai_router, tags=["openai"], prefix="/api/openai", dependencies=[Depends(jwt_bearer)])
 
 # request/response logging
 # https://stackoverflow.com/questions/69670125/how-to-log-raw-http-request-response-in-python-fastapi
