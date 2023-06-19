@@ -15,6 +15,7 @@ passlib = "*"
 bcrypt = "*"
 pyjwt = "*"
 openai = "*"
+python-multipart = "*"
 
 [dev-packages]
 

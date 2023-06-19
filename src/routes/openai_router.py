@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 # TODO: Check the ApiResponse[??] ?? Data Type
-@router.get('/list-file', response_model=ApiResponse[any])
+@router.get('/list-file', response_model=ApiResponse)
 async def list_file():
     """
     OpenAI에 업로드한 파일 목록 가져오기
@@ -33,7 +33,7 @@ async def list_file():
         return {"success": False, "message": f"fail to get file list, {e}", "data": None}
 
 
-@router.get('/list-fine-tune', response_model=ApiResponse[any])
+@router.get('/list-fine-tune', response_model=ApiResponse)
 async def list_fine_tune():
     """
     생성한 파인 튜닝 모델 목록 가져오기
@@ -56,7 +56,7 @@ async def list_fine_tune():
         return {"success": False, "message": f"fail to get fine tune list, {e}", "data": None}
 
 
-@router.post('/create-fine-tune', response_model=ApiResponse[any])
+@router.post('/create-fine-tune', response_model=ApiResponse)
 async def create_fine_tune(file: UploadFile, modelName: str = Form(...)):
     """
     파인 튜닝 모델 생성하기
@@ -101,7 +101,7 @@ async def create_fine_tune(file: UploadFile, modelName: str = Form(...)):
         return {"success": False, "message": f"fail to create fine tune, {e}", "data": None}
 
 
-@router.post('/completion-by-fine-tune', response_model=ApiResponse[any])
+@router.post('/completion-by-fine-tune', response_model=ApiResponse)
 async def completion_by_fine_tune(body: RequestChatByFineTuneDTO):
     """
     파인 튜닝 모델을 이용해서 컴플리션(completion) 데이터 받기
@@ -127,7 +127,7 @@ async def completion_by_fine_tune(body: RequestChatByFineTuneDTO):
         return {"success": False, "message": f"fail to chat by fine tune: {e}", "data": None}
 
 
-@router.post("/paint", response_model=ApiResponse[any])
+@router.post("/paint", response_model=ApiResponse)
 async def create_paint(paint: CreatePaintDTO):
     """
     ChatGPT3.5 활용하여 선택한 화가의 스타일로 그림 만들어주기
@@ -157,7 +157,7 @@ async def create_paint(paint: CreatePaintDTO):
         }
 
 
-@router.delete('/delete-fine-tune', response_model=ApiResponse[any])
+@router.delete('/delete-fine-tune', response_model=ApiResponse)
 async def delete_fine_tune(fineTuneModel: str = Form(...)):
     """
     파인 튜닝 모델 삭제하기
