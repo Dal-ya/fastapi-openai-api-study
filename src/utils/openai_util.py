@@ -103,7 +103,7 @@ def get_gpt3_responses(chunk: str, QUESTION_COUNT=5, TEMPERATURE_VALUE=0.5):
 
 def create_jsonl(file_name: str, file_path: str, CHUNK_SIZE=500):
     try:
-        with open(file_path, "r") as input_file:
+        with open(file_path, "r", encoding="UTF-8") as input_file:
             data = input_file.read()
 
         # Replace newline characters with space and replace quotes with apostrophes
@@ -118,7 +118,7 @@ def create_jsonl(file_name: str, file_path: str, CHUNK_SIZE=500):
         file_name_without_ext, _ = os.path.splitext(file_name)
         jsonl_file_name = f"{file_name_without_ext}-{str(uuid.uuid4())}.jsonl"
 
-        with open(os.path.join(JSONL_DIR, jsonl_file_name), "w") as output_file:
+        with open(os.path.join(JSONL_DIR, jsonl_file_name), "w", encoding="UTF-8") as output_file:
             for chunk in chunks:
                 response: str = get_gpt3_responses(chunk)
                 if response is None:

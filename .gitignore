@@ -397,3 +397,6 @@ mongo-data/
 
 # log
 logs/
+
+fine-tune/
+jsonl-files/

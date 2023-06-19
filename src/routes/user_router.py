@@ -19,8 +19,9 @@ router = APIRouter()
 jwt_bearer = JWTBearer()
 
 
-@router.get("/", status_code=200, response_model=ApiResponse[List[User]], dependencies=[Depends(jwt_bearer)])
+@router.get("/list", status_code=200, response_model=ApiResponse[List[User]], dependencies=[Depends(jwt_bearer)])
 async def get_user_list():
+    # TODO: current jwt test fn ==> will add logic "remove response filed password" and "pagination query"
     """
     유저 목록 가져오기 
     """
