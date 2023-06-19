@@ -21,7 +21,7 @@ python-multipart = "*"
 
 [requires]
 python_version = "3.11"
-python_full_version = "3.11.2"
+python_full_version = "3.11.1"
 
 [scripts]
 start = "uvicorn src.app:app --port 8000 --reload"
