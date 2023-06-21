@@ -34,3 +34,9 @@ class RequestChatByFineTuneDTO(BaseModel):
 class CreatePaintDTO(BaseModel):
     author: str
     description: str
+
+
+class CreateGadlyCompletions(BaseModel):
+    prompt: str
+    maxTotalMatchesTokens: int  # 예) 250으로 설정한 경우 -> 100토큰 일치 항목이 3개인 경우 2개만 반환
+    
