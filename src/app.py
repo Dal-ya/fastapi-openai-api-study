@@ -42,7 +42,7 @@ def read_root():
 
 app.include_router(user_router, tags=["user"], prefix="/api/user")
 app.include_router(openai_router, tags=["openai"], prefix="/api/openai", dependencies=[Depends(jwt_bearer)])
-app.include_router(godly_router, tags=["godly"], prefix="/api/godly")
+app.include_router(godly_router, tags=["godly"], prefix="/api/godly", dependencies=[Depends(jwt_bearer)])
 
 # request/response logging
 # https://stackoverflow.com/questions/69670125/how-to-log-raw-http-request-response-in-python-fastapi

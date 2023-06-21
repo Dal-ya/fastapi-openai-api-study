@@ -4,7 +4,7 @@ from fastapi import APIRouter
 import src.config.log as app_log
 from dotenv import load_dotenv
 
-from src.dto.dto import CreateGodlyCompletions
+from src.dto.dto import CreateGodlyCompletions, ApiResponse
 
 load_dotenv()
 logger = app_log.get_logger("godly_router")
@@ -14,10 +14,10 @@ router = APIRouter()
 
 @router.get("/")
 async def root():
-    return "hello gadly api"
+    return "hello godly api"
 
 
-@router.post("/completions", status_code=200)
+@router.post("/completions", status_code=200, response_model=ApiResponse)
 async def completions(create_completions: CreateGodlyCompletions):
     try:
         url = os.environ["GODLY_COMPLETIONS_URL"]
@@ -46,4 +46,4 @@ async def completions(create_completions: CreateGodlyCompletions):
     except Exception as e:
         print(e)
         logger.error(e)
-        return {"success": False, "message": f"fail to gadly completions: {e}", "data": None}
+        return {"success": False, "message": f"fail to godly completions: {e}", "data": None}
