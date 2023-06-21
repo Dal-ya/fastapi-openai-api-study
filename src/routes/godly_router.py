@@ -4,10 +4,10 @@ from fastapi import APIRouter
 import src.config.log as app_log
 from dotenv import load_dotenv
 
-from src.dto.dto import CreateGadlyCompletions
+from src.dto.dto import CreateGodlyCompletions
 
 load_dotenv()
-logger = app_log.get_logger("gadly_router")
+logger = app_log.get_logger("godly_router")
 
 router = APIRouter()
 
@@ -18,12 +18,12 @@ async def root():
 
 
 @router.post("/completions", status_code=200)
-async def completions(create_completions: CreateGadlyCompletions):
+async def completions(create_completions: CreateGodlyCompletions):
     try:
-        url = os.environ["GADLY_COMPLETIONS_URL"]
-        api_key = os.environ["GADLY_API_KEY"]
+        url = os.environ["GODLY_COMPLETIONS_URL"]
+        api_key = os.environ["GODLY_API_KEY"]
         payload = {
-            "model": "gpt-3.5-turbo",
+            "model": "gpt-3.5-turbo-0301",
             "max_total_matches_tokens": create_completions.maxTotalMatchesTokens,
             "prompt": create_completions.prompt,
         }
@@ -37,7 +37,7 @@ async def completions(create_completions: CreateGadlyCompletions):
 
         if response.status_code == 200:
             completion = response.json()["choices"][0]["message"]["content"]
-            return {"success": True, "message": f"success to gadly completions", "data": completion}
+            return {"success": True, "message": f"success to godly completions", "data": completion}
         else:
             print(response.text)
             logger.warning(response.status_code)
