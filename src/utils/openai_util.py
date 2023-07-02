@@ -1,5 +1,9 @@
+import json
 import mimetypes
 import os
+import smtplib
+import ssl
+from email.message import EmailMessage
 from pathlib import Path
 import uuid
 import openai
@@ -7,6 +11,7 @@ from fastapi import HTTPException, UploadFile
 from dotenv import load_dotenv
 from typing import Generic, TypeVar
 from pydantic import BaseModel
+import tiktoken
 
 load_dotenv()
 openai.api_key = os.environ['OPENAI_API_KEY']
@@ -22,6 +27,27 @@ class ResponseResult(BaseModel, Generic[T]):
 
 class ResponseImage(BaseModel):
     url: str
+
+
+# default chat(method default_chat)에 사용 되는 변수들
+# https://learn.microsoft.com/en-us/azure/cognitive-services/openai/how-to/chatgpt?pivots=programming-language-chat-completions
+system_message = {"role": "system", "content": "You are a helpful assistant."}
+max_response_tokens = 250
+token_limit = 4096
+conversation: list = [system_message]
+
+
+def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613"):
+    encoding = tiktoken.encoding_for_model(model)
+    num_tokens = 0
+    for message in messages:
+        num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
+        for key, value in message.items():
+            num_tokens += len(encoding.encode(value))
+            if key == "name":  # if there's a name, the role is omitted
+                num_tokens += -1  # role is always required and always 1 token
+    num_tokens += 2  # every reply is primed with <im_start>assistant
+    return num_tokens
 
 
 async def fine_tune_save_file(file: UploadFile):
@@ -306,5 +332,157 @@ def chat_by_fine_tune_model(fine_tune_model: str, prompt: str):
         return {
             "success": False,
             "message": f"fail to chat by fine tune: {e}",
+            "data": None
+        }
+
+
+def send_email(subject: str, content: str, receiver: str):
+    try:
+        email_sender = os.environ["EMAIL_SENDER"]
+        email_receiver = receiver or os.environ["EMAIL_SENDER"]
+        email_password = os.environ["GOOGLE_APP_PWD"]
+
+        subject = subject or "From Chat GPT"
+        body = content or "content is empty."
+
+        em = EmailMessage()
+        em["From"] = email_sender
+        em["To"] = email_receiver
+        em["subject"] = subject
+        em.set_content(body)
+
+        context = ssl.create_default_context()
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+            smtp.login(email_sender, email_password)
+            smtp.sendmail(email_sender, email_receiver, em.as_string())
+
+        return "SUCCESS"
+
+    except Exception as e:
+        print(e)
+        return {
+            "success": False,
+            "message": f"fail to send email: {e}",
+            "data": None
+        }
+
+
+def default_chat(user_message=""):
+    try:
+        conversation.append({"role": "user", "content": user_message})
+        conv_history_tokens = num_tokens_from_messages(conversation)
+
+        if conv_history_tokens + max_response_tokens >= token_limit:
+            del conversation[1]
+
+        functions = [
+            {
+                "name": "send_email",
+                "description": "send email.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "subject": {
+                            "type": "string",
+                            "description": "email subject e.g. Hi, lion",
+                        },
+                        "content": {
+                            "type": "string",
+                            "description": "email content, e.g. Hello World!",
+                        },
+                        "receiver": {
+                            "type": "string",
+                            "description": "email receiver e.g. lion@abc.com",
+                        },
+                    },
+                    "required": ["subject", "content", "receiver"],
+                },
+            }
+        ]
+
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-0613",
+            messages=conversation,
+            temperature=0.7,
+            # max_tokens=max_response_tokens,
+            functions=functions,
+            function_call="auto",
+        )
+
+        response_message = response["choices"][0]["message"]
+
+        if response_message.get("function_call"):
+            available_functions = {
+                "send_email": send_email,
+            }
+            function_name = response_message["function_call"]["name"]
+            function_to_call = available_functions[function_name]
+            function_args = json.loads(response_message["function_call"]["arguments"])
+            function_response = function_to_call(
+                subject=function_args.get("subject"),
+                content=function_args.get("content"),
+                receiver=function_args.get("receiver"),
+            )
+
+            conversation.append(response_message)
+            conversation.append({
+                "role": "function",
+                "name": function_name,
+                "content": function_response or "No response from function."  # function_response 가 null 이면 Error 발생
+            })
+
+            if function_response == "SUCCESS":
+                conversation.append({
+                    "role": "assistant",
+                    "content": "이메일을 성공적으로 보냈습니다. 메일함을 확인해 주세요."
+                })
+                return {
+                    "success": True,
+                    "message": "success to translate",
+                    "data": "이메일을 성공적으로 보냈습니다. 메일함을 확인해 주세요."
+                }
+
+            second_response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo-0613",
+                messages=conversation,
+                temperature=0.7,
+                # max_tokens=max_response_tokens,
+            )
+
+            if second_response['choices'][0]['finish_reason'] == "stop":
+                conversation.append(
+                    {"role": "assistant", "content": second_response['choices'][0]['message']['content']})
+
+                return {
+                    "success": True,
+                    "message": "success to translate",
+                    "data": second_response["choices"][0]["message"]["content"]
+                }
+            else:
+                return {
+                    "success": False,
+                    "message": f"Request has not stopped. Finish Reason: {second_response['choices'][0]['finish_reason']}",
+                    "data": None
+                }
+        elif response['choices'][0]['finish_reason'] == "stop":
+            conversation.append({"role": "assistant", "content": response['choices'][0]['message']['content']})
+
+            return {
+                "success": True,
+                "message": "success to translate",
+                "data": response["choices"][0]["message"]["content"]
+            }
+        else:
+            return {
+                "success": False,
+                "message": f"Request has not stopped. Finish Reason: {response['choices'][0]['finish_reason']}",
+                "data": None
+            }
+    except Exception as e:
+        print(conversation)
+        return {
+            "success": False,
+            "message": f"Request has failed, {e}",
             "data": None
         }

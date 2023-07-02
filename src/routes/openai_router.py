@@ -1,9 +1,10 @@
 from fastapi import APIRouter, UploadFile, Form
 import src.config.log as app_log
-from src.dto.dto import ApiResponse, RequestChatByFineTuneDTO, CreatePaintDTO
+from src.dto.dto import ApiResponse, RequestChatByFineTuneDTO, CreatePaintDTO, ChatWithFunctionsDTO
 
 from src.utils.openai_util import get_file_list, get_fine_tune_list, fine_tune_save_file, create_jsonl, upload_jsonl, \
-    create_fine_tune_model, chat_by_fine_tune_model, delete_fine_tune_model, translate_description, generate_image
+    create_fine_tune_model, chat_by_fine_tune_model, delete_fine_tune_model, translate_description, generate_image, \
+    default_chat
 
 logger = app_log.get_logger("openai_router")
 router = APIRouter()
@@ -178,3 +179,26 @@ async def delete_fine_tune(fineTuneModel: str = Form(...)):
         print(e)
         logger.error(e)
         return {"success": False, "message": f"fail to delete fine tune: {e}", "data": None}
+
+
+@router.post('/chat-with-functions', response_model=ApiResponse)
+async def chat_with_functions(body: ChatWithFunctionsDTO):
+    try:
+        default_chat_result = default_chat(body.userMsg)
+
+        if not default_chat_result["success"]:
+            raise Exception(f"{default_chat_result['message']}")
+
+        return {
+            "success": True,
+            "message": "success to chat with functions",
+            "data": {
+                "userMsg": body.userMsg,
+                "botMsg": default_chat_result["data"]
+            }
+        }
+
+    except Exception as e:
+        print(e)
+        logger.error(e)
+        return {"success": False, "message": f"fail to chat with functions: {e}", "data": None}

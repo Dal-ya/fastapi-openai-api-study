@@ -17,6 +17,7 @@ pyjwt = "*"
 openai = "*"
 python-multipart = "*"
 requests = "*"
+tiktoken = "*"
 
 [dev-packages]
 
