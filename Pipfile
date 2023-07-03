@@ -23,7 +23,7 @@ tiktoken = "*"
 
 [requires]
 python_version = "3.11"
-python_full_version = "3.11.1"
+#python_full_version = "3.11.1"
 
 [scripts]
 start = "uvicorn src.app:app --host 0.0.0.0 --port 8000 --reload"
