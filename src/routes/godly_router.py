@@ -12,7 +12,7 @@ logger = app_log.get_logger("godly_router")
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 async def root():
     return "hello godly api"
 

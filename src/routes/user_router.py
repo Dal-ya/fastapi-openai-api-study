@@ -34,7 +34,7 @@ async def get_user_list():
         return {"success": False, "message": "failed get user list", "data": None}
 
 
-@router.post("/", status_code=200, response_model=ApiResponse[User])
+@router.post("", status_code=200, response_model=ApiResponse[User])
 async def create_user(user_create: CreateUserDto):
     """
     유저 생성하기
