@@ -373,6 +373,8 @@ def default_chat(user_message=""):
         conversation.append({"role": "user", "content": user_message})
         conv_history_tokens = num_tokens_from_messages(conversation)
 
+        print("conv_history_tokens ::: ", conv_history_tokens)
+
         if conv_history_tokens + max_response_tokens >= token_limit:
             del conversation[1]
 
@@ -425,7 +427,27 @@ def default_chat(user_message=""):
                 receiver=function_args.get("receiver"),
             )
 
-            conversation.append(response_message)
+            """
+            response_message
+            {
+                'role': 'assistant',
+                'content': null,
+                'function_call' : {'name': 'send_email', 'arguments' : '...'}
+            }
+            """
+
+            # num_tokens_from_messages 함수 활용시 에러 방지를 위해 분기 처리
+            if "function_call" in response_message:
+                function_call = response_message["function_call"]
+                conversation.append({"role": response_message["role"], "content": "function_call"})
+                conversation.append({
+                    "role": response_message["role"],
+                    "name": function_call["name"],
+                    "content": function_call["arguments"]
+                })
+            else:
+                conversation.append(response_message)
+
             conversation.append({
                 "role": "function",
                 "name": function_name,
@@ -480,7 +502,7 @@ def default_chat(user_message=""):
                 "data": None
             }
     except Exception as e:
-        print(conversation)
+        print(e)
         return {
             "success": False,
             "message": f"Request has failed, {e}",
